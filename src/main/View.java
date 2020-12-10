@@ -34,7 +34,7 @@ public class View {
             if (checkB){
                 System.out.println("Неверное число, повторите ввод");
             }
-            System.out.println("Введите пункт меню");
+            System.out.println("Введите пункт меню тест");
             number = in.nextInt();
             switch (number) {
                 case 1:
