@@ -1,9 +1,12 @@
 package main;
 
+import java.io.IOException;
 import java.util.Scanner;
 
 public class View {
-    public View() {
+    private Controller controller;
+    public View() throws IOException, ClassNotFoundException {
+         controller = new Controller();
         start();
     }
 
@@ -18,13 +21,13 @@ public class View {
         System.out.println("7) Выход");
     }
 
-    public void updateMenu() {
+    /*public void updateMenu() {
         for (int i = 0; i < 10; i++) {
             System.out.println();
         }
-    }
+    }*/
 
-    public void start() {
+    public void start() throws IOException {
         Scanner in = new Scanner(System.in);
         boolean stop = false;
         int number;
@@ -38,16 +41,20 @@ public class View {
             number = in.nextInt();
             switch (number) {
                 case 1:
+                    printListTask();
                     checkB = false;
                     break;
                 case 2:
                     checkB = false;
+                    addTask();
                     break;
                 case 3:
                     checkB = false;
+                    updateTask();
                     break;
                 case 4:
                     checkB = false;
+                    //getTaskByQueryDate();
                     break;
                 case 5:
                     checkB = false;
@@ -63,7 +70,52 @@ public class View {
                     checkB = true;
                     break;
             }
-            updateMenu();
         }
     }
+
+    //1
+    public void printListTask(){
+        System.out.println(controller.getStringListTasks());
+    }
+    //2
+    public void addTask() throws IOException {
+        System.out.println("Введите дату (dd.MM.yyyy HH:mm)");
+        Scanner in = new Scanner(System.in);
+        String date = in.nextLine();
+        System.out.println("Введите тип задачи");
+        String type = in.nextLine();
+        System.out.println("Введите заметку");
+        String text = in.nextLine();
+        Integer id = controller.setNewId();
+        Task newTask = new Task(id, date, type, text);
+        controller.addTask(newTask);
+    }
+    //3
+    public void updateTask() throws IOException {
+        printListTask();
+        System.out.println("Введите ID задачи");
+        Scanner in = new Scanner(System.in);
+        Integer id = in.nextInt();
+        Task temp = controller.getTaskById(id);
+        if (temp == null)
+            return;
+        System.out.println("Введите дату (dd.MM.yyyy HH:mm)");
+        Scanner on = new Scanner(System.in);
+        String date = on.nextLine();
+        if (controller.checkDate(date) == false){
+            return;
+        }
+        System.out.println("Введите тип задачи");
+        String type = on.nextLine();
+        System.out.println("Введите заметку");
+        String text = on.nextLine();
+        controller.updateTask(new Task(id, date, type, text));
+    }
+    //4
+    /*public void getTaskByQueryDate(){
+        System.out.println("Введите дату");
+        Scanner in = new Scanner(System.in);
+        String date = in.nextLine();
+        System.out.println(controller.getStringListTasks(controller.getTaskByQuery(date)));
+    }*/
 }
