@@ -90,7 +90,6 @@ public class Task implements Comparable<Task>, Serializable {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-
         if (calendar.compareTo(calendar1) > 0)
             return true;
         else return false;

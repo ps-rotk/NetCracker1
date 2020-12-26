@@ -14,10 +14,29 @@ public class Controller {
     private void updateListTask(){
         listTask = layout.getAllTasks();
     }
+    //проверяет при открытии программы наличие старых тасков
+    private void checkOldTask() throws IOException {
+        DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+        Date date = new Date();
+        LinkedList<Task> deletedList = new LinkedList<>();
+        System.out.println("Проверка задач...\n");
+        for(Task t : listTask){
+        if (true != t.compareString(dateFormat.format(date))) {
+            System.out.printf("Задача удалена (время исполнения прошло)\t");
+            System.out.println(t.toString());
+            deletedList.add(t);
+            }
+        }
+        for (Task t: deletedList){
+            deleteTask(t.getId());
+        }
+        System.out.println("Проверка задач завершена!\n");
+    }
     //конструктор
     public Controller() throws IOException, ClassNotFoundException {
         layout = new DBLayout();
         listTask = layout.getAllTasks();
+        checkOldTask();
     }
 
     //получение длины листа
@@ -42,24 +61,37 @@ public class Controller {
 
     //изменить таск
     public void updateTask(Task newT) throws IOException {
-        DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm");
-        Date date = new Date();
-        if (true == newT.compareString(dateFormat.format(date))){
+        if (checkDate(newT.getDate()) == true) {
             layout.updateTask(newT);
             updateListTask();
-        } else {
-            System.out.println("Не удалось обновить задачу. Неправильная дата.");
         }
     }
 
     public boolean checkDate(String date1){
         DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm");
         Date date = new Date();
+        int dd;int MM;int yyyy;int HH;int mm;
+        try {
+            dd = Integer.parseInt(date1.substring(0, 2));
+            MM = Integer.parseInt(date1.substring(3,5));
+            yyyy = Integer.parseInt(date1.substring(6, 10));
+            HH = Integer.parseInt(date1.substring(11, 13));
+            mm = Integer.parseInt(date1.substring(14));
+        }catch (NumberFormatException nfe){
+            System.out.println("Ошибка. Неправильная дата.");
+            return false;
+        }
+        if (dd > 31 || (dd > 30 && (MM == 2 || MM == 4 || MM == 6 || MM == 9
+        || MM == 11)) || MM > 12 || dd < 1 || MM < 1 ||  yyyy < 1 || HH > 23
+        || HH < 0 || mm > 59 || mm < 0) {
+            System.out.println("Ошибка. Неправильная дата.");
+            return false;
+        }
         Task newT = new Task(0, date1, null, null);
         if (true == newT.compareString(dateFormat.format(date))){
             return true;
         } else {
-            System.out.println("Не удалось обновить задачу. Неправильная дата.");
+            System.out.println("Ошибка. Неправильная дата.");
             return false;
         }
     }
@@ -69,12 +101,12 @@ public class Controller {
         Integer[] allId = layout.getAllId();
         boolean flag = false;
         for (Integer i: allId){
-            if (i == id){
+            if (i.equals(id)){
                 flag = true;
             }
         }
         if (flag == false){
-            System.out.println("Невозможно удалить файл: такого id не существует");
+            System.out.println("Невозможно удалить задачу: такого id не существует");
         } else {
             layout.deleteTask(id);
             updateListTask();
@@ -97,7 +129,7 @@ public class Controller {
             }
         }
         if (flag == false){
-            System.out.println("Невозможно получить список задач на заданную дату: такой даты нет в списке");
+           // System.out.println("Невозможно получить список задач на заданную дату: такой даты нет в списке");
             return null;
         } else {
             return layout.getTaskByQuery(date);
@@ -111,12 +143,12 @@ public class Controller {
         boolean flag = false;
 
         for (String i: allDatesType){
-            if (i == check){
+            if (i.equals(check)){
                 flag = true;
             }
         }
         if (flag == false){
-            System.out.println("Невозможно получить список задач по типу и дате: таких задач в списке нет");
+            //System.out.println("Невозможно получить список задач по типу и дате: таких задач в списке нет");
             return null;
         } else {
             return layout.getTaskByQuery(date, type);
@@ -140,12 +172,9 @@ public class Controller {
     //получить стринг переданного листа
     public String getStringListTasks(LinkedList<Task> listTask) {
         String out = "Cписок задач: \n";
-        ///////костыль
-        if (listTask.size() == 1 && listTask.get(0).getId() == -1) {
+        if (listTask == null) {
             return out = "Cписок задач пуст";
-            /////////
         } else {
-
             for (Task t : listTask) {
                 out += t.toString() + "\n";
             }

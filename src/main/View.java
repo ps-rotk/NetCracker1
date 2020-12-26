@@ -1,6 +1,7 @@
 package main;
 
 import java.io.IOException;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class View {
@@ -54,12 +55,14 @@ public class View {
                     break;
                 case 4:
                     checkB = false;
-                    //getTaskByQueryDate();
+                    getTaskByQueryDate();
                     break;
                 case 5:
+                    getTaskByQueryDateType();
                     checkB = false;
                     break;
                 case 6:
+                    deleteTaskById();
                     checkB = false;
                     break;
                 case 7:
@@ -82,6 +85,7 @@ public class View {
         System.out.println("Введите дату (dd.MM.yyyy HH:mm)");
         Scanner in = new Scanner(System.in);
         String date = in.nextLine();
+        if (controller.checkDate(date) == false){ return; }
         System.out.println("Введите тип задачи");
         String type = in.nextLine();
         System.out.println("Введите заметку");
@@ -112,10 +116,29 @@ public class View {
         controller.updateTask(new Task(id, date, type, text));
     }
     //4
-    /*public void getTaskByQueryDate(){
-        System.out.println("Введите дату");
+    public void getTaskByQueryDate(){
+        System.out.println("Введите дату (dd.MM.yyyy)");
         Scanner in = new Scanner(System.in);
         String date = in.nextLine();
         System.out.println(controller.getStringListTasks(controller.getTaskByQuery(date)));
-    }*/
+    }
+    //5
+    public void getTaskByQueryDateType(){
+        System.out.println("Введите дату (dd.MM.yyyy)");
+        Scanner in = new Scanner(System.in);
+        String date = in.nextLine();
+        if (controller.checkDate(date) == false)
+            return;
+        System.out.println("Введите тип задачи");
+        String type = in.nextLine();
+        System.out.println(controller.getStringListTasks(controller.getTaskByQuery(date, type)));
+    }
+    //6
+    public void deleteTaskById() throws IOException {
+        printListTask();
+        System.out.println("Введите id задачи, которую хотите удалить");
+        Scanner in = new Scanner(System.in);
+        Integer id = in.nextInt();
+        controller.deleteTask(id);
+    }
 }

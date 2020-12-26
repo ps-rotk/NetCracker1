@@ -2,6 +2,7 @@ package main;
 
 import java.io.*;
 import java.lang.reflect.Array;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -13,8 +14,16 @@ public class DBLayout {
 
     //Заполнение конструктора
     private LinkedList<Task> getAllTasksConstr() throws IOException, ClassNotFoundException {
-        ObjectInputStream in = new ObjectInputStream(new FileInputStream("Tasks.dat"));
-        return DBLayout.deserializeListTask(in);
+
+        File checkExist = new File("Tasks.dat");
+        if (checkExist.exists() == true) {
+            ObjectInputStream in = new ObjectInputStream(new FileInputStream("Tasks.dat"));
+            return DBLayout.deserializeListTask(in);
+        } else {
+            System.out.println("Файла Tasks.dat не существует на данном устройстве. \nФайл Tasks.dat был создан.");
+            checkExist.createNewFile();
+            return new LinkedList<Task>();
+        }
     }
 
     //сортировка листа по дате
@@ -85,7 +94,7 @@ public class DBLayout {
         Task temp;
         while (i.hasNext()){
             temp = i.next();
-            if (temp.getId() == id){
+            if (temp.getId().equals(id)){
                 i.remove();
             }
         }
@@ -104,29 +113,25 @@ public class DBLayout {
                 i.setType(newT.getType());
             }
         }
+        sortList();
         saveListTask();
     }
 
     //получить список по задач по определённой дате
     public LinkedList<Task> getTaskByQuery(String date){
-        LinkedList<Task> newTasks = new LinkedList<Task>();
+        List<Task> newTasks = new LinkedList<Task>();
         for (Task i: listTask){
             if (i.getDate().substring(0, 10).equals(date))
                 newTasks.add(i);
         }
-        //////// костыль, исправить
-        Task temp = new Task();
-        temp.setId(-1);
-        newTasks.add(temp);
-        /////////
-        return newTasks;
+        return (LinkedList<Task>) newTasks;
     }
 
     //получить список задач по дате и типу
     public LinkedList<Task> getTaskByQuery(String date, String type){
         LinkedList<Task> newTasks = new LinkedList<Task>();
         for (Task i: listTask){
-            if (i.getDate() == date && i.getType() == type)
+            if (i.getDate().substring(0, 10).equals(date) && i.getType().equals(type))
                 newTasks.add(i);
         }
         return newTasks;
@@ -155,7 +160,7 @@ public class DBLayout {
         Task temp;
         for (int i = 0; i < listTask.size(); i++){
             temp = listTask.get(i);
-            allDatesType[i] = temp.getDate() + temp.getType();
+            allDatesType[i] = temp.getDate().substring(0,10) + temp.getType();
         }
         return allDatesType;
     }
@@ -167,4 +172,5 @@ public class DBLayout {
         }
         return null;
     }
+
 }
