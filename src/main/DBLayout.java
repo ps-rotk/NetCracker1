@@ -11,7 +11,6 @@ public class DBLayout {
 
     private List<Task> listTask;
 ///////////
-
     //Заполнение конструктора
     private LinkedList<Task> getAllTasksConstr() throws IOException, ClassNotFoundException {
 
@@ -25,7 +24,6 @@ public class DBLayout {
             return new LinkedList<Task>();
         }
     }
-
     //сортировка листа по дате
     private void sortList(){
         listTask.sort(new Comparator<Task>() {
@@ -55,13 +53,11 @@ public class DBLayout {
         objectOutputStream.writeObject(listTask);
         objectOutputStream.close();
     }
-
     //десериализация
     public static LinkedList<Task> deserializeListTask(ObjectInputStream in) throws IOException, ClassNotFoundException {
         ObjectInputStream objectInputStream = new ObjectInputStream(in);
         return (LinkedList<Task>) objectInputStream.readObject();
     }
-
     //сохранение листа в файл после каждого изменения
     private void saveListTask() throws IOException {
         ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("Tasks.dat"));
@@ -75,19 +71,16 @@ public class DBLayout {
     public DBLayout() throws IOException, ClassNotFoundException {
         listTask = getAllTasksConstr();
     }
-
     //передача всех задач в контроллер
     public LinkedList<Task> getAllTasks(){
         return (LinkedList<Task>) listTask;
     }
-
     //добавление задачи в список
     public void addTask(Task task) throws IOException {
         listTask.add(task);
         sortList();
         saveListTask();
     }
-
     //удаление задачи
     public void deleteTask(Integer id) throws IOException {
         Iterator<Task> i = listTask.iterator();
@@ -100,10 +93,8 @@ public class DBLayout {
         }
         saveListTask();
     }
-
     //получить длину листа
     public int getLength(){ return listTask.size();}
-
     //обновить таск
     public void updateTask(Task newT) throws IOException {
         for (Task i: listTask){
@@ -116,7 +107,6 @@ public class DBLayout {
         sortList();
         saveListTask();
     }
-
     //получить список по задач по определённой дате
     public LinkedList<Task> getTaskByQuery(String date){
         List<Task> newTasks = new LinkedList<Task>();
@@ -126,7 +116,6 @@ public class DBLayout {
         }
         return (LinkedList<Task>) newTasks;
     }
-
     //получить список задач по дате и типу
     public LinkedList<Task> getTaskByQuery(String date, String type){
         LinkedList<Task> newTasks = new LinkedList<Task>();
@@ -136,7 +125,6 @@ public class DBLayout {
         }
         return newTasks;
     }
-
     //возвращает массив id для проверки в контроллере
     public Integer[] getAllId(){
         Integer[] allId = new Integer[listTask.size()];

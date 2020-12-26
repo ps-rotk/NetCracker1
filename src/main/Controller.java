@@ -19,18 +19,23 @@ public class Controller {
         DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm");
         Date date = new Date();
         LinkedList<Task> deletedList = new LinkedList<>();
-        System.out.println("Проверка задач...\n");
-        for(Task t : listTask){
-        if (true != t.compareString(dateFormat.format(date))) {
-            System.out.printf("Задача удалена (время исполнения прошло)\t");
-            System.out.println(t.toString());
-            deletedList.add(t);
+        if (listTask.size() == 0)
+            return;
+        else {
+            System.out.println("Проверка задач...\n");
+            for (Task t : listTask) {
+                if (true != t.compareString(dateFormat.format(date))) {
+                    System.out.printf("Задача удалена (время исполнения прошло)\t");
+                    System.out.println(t.toString());
+                    deletedList.add(t);
+                }
             }
+            for (Task t : deletedList) {
+                deleteTask(t.getId());
+            }
+            System.out.println("Проверка задач завершена!\n");
         }
-        for (Task t: deletedList){
-            deleteTask(t.getId());
-        }
-        System.out.println("Проверка задач завершена!\n");
+
     }
     //конструктор
     public Controller() throws IOException, ClassNotFoundException {
@@ -38,10 +43,8 @@ public class Controller {
         listTask = layout.getAllTasks();
         checkOldTask();
     }
-
     //получение длины листа
     public int getLength(){ return listTask.size();}
-
     //добавление таска
     public void addTask(Task t) throws IOException {
         DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm");
@@ -53,12 +56,10 @@ public class Controller {
             System.out.println("Не удалось добавить задачу. Неправильная дата.");
         }
     }
-
     //получение всех тасков
     public LinkedList<Task> getAllTasks(){
         return (LinkedList<Task>) listTask;
     }
-
     //изменить таск
     public void updateTask(Task newT) throws IOException {
         if (checkDate(newT.getDate()) == true) {
@@ -66,7 +67,7 @@ public class Controller {
             updateListTask();
         }
     }
-
+    //проверка даты
     public boolean checkDate(String date1){
         DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm");
         Date date = new Date();
@@ -95,7 +96,6 @@ public class Controller {
             return false;
         }
     }
-
     //удалить таск
     public void deleteTask(Integer id) throws IOException {
         Integer[] allId = layout.getAllId();
@@ -112,12 +112,10 @@ public class Controller {
             updateListTask();
         }
     }
-
     //получить таск по индексу
     public Task getTaskByIndex(int a){
         return listTask.get(a);
     }
-
     //получить таск по условию (по датам)
     public LinkedList<Task> getTaskByQuery(String date){
         String[] allDates = layout.getAllDate();
@@ -135,7 +133,6 @@ public class Controller {
             return layout.getTaskByQuery(date);
         }
     }
-
     //получить таск по условию (по строке и по типу)
     public LinkedList<Task> getTaskByQuery(String date, String type){
         String check = date + type;
@@ -154,7 +151,6 @@ public class Controller {
             return layout.getTaskByQuery(date, type);
         }
     }
-
     //получить стринг всех задач
    public String getStringListTasks() {
        String out = "Cписок задач: \n";
@@ -168,7 +164,6 @@ public class Controller {
            return out;
        }
    }
-
     //получить стринг переданного листа
     public String getStringListTasks(LinkedList<Task> listTask) {
         String out = "Cписок задач: \n";
@@ -181,14 +176,11 @@ public class Controller {
             return out;
         }
     }
-
    public Integer setNewId(){
        Random rand = new Random();
        return rand.nextInt(9999 - 1000) + 1000;
    }
-
    public Task getTaskById(Integer id){
-
        Integer[] allId = layout.getAllId();
        boolean flag = false;
        for (int i = 0; i < listTask.size(); i++){

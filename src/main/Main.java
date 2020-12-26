@@ -8,7 +8,7 @@ import java.util.UUID;
 public class Main {
     public static void main(String[] args) throws IOException, ClassNotFoundException {
       View view = new View();
-       /*String filename = "Tasks.dat";
+      /* String filename = "Tasks.dat";
         // создадим список объектов, которые будем записывать
         LinkedList<Task> listTasks = new LinkedList<Task>();
         listTasks.add(new Task());
