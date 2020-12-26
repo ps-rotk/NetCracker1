@@ -16,8 +16,13 @@ public class DBLayout {
 
         File checkExist = new File("Tasks.dat");
         if (checkExist.exists() == true) {
-            ObjectInputStream in = new ObjectInputStream(new FileInputStream("Tasks.dat"));
-            return DBLayout.deserializeListTask(in);
+            if (checkExist.length() == 0){
+                System.out.println("Файл пуст");
+                return new LinkedList<Task>();
+            }else {
+                ObjectInputStream in = new ObjectInputStream(new FileInputStream("Tasks.dat"));
+                return DBLayout.deserializeListTask(in);
+            }
         } else {
             System.out.println("Файла Tasks.dat не существует на данном устройстве. \nФайл Tasks.dat был создан.");
             checkExist.createNewFile();
