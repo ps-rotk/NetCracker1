@@ -53,13 +53,13 @@ public class DBLayout {
     }
 
     //сериализация
-    public static void serializeListTask (LinkedList<Task> listTask, OutputStream out) throws IOException {
+    private static void serializeListTask (LinkedList<Task> listTask, OutputStream out) throws IOException {
         ObjectOutputStream objectOutputStream = new ObjectOutputStream(out);
         objectOutputStream.writeObject(listTask);
         objectOutputStream.close();
     }
     //десериализация
-    public static LinkedList<Task> deserializeListTask(ObjectInputStream in) throws IOException, ClassNotFoundException {
+    private static LinkedList<Task> deserializeListTask(ObjectInputStream in) throws IOException, ClassNotFoundException {
         ObjectInputStream objectInputStream = new ObjectInputStream(in);
         return (LinkedList<Task>) objectInputStream.readObject();
     }

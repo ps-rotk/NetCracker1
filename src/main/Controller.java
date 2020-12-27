@@ -41,6 +41,9 @@ public class Controller {
     public Controller() throws IOException, ClassNotFoundException {
         layout = new DBLayout();
         listTask = layout.getAllTasks();
+        Scheduler scheduler = new Scheduler((LinkedList<Task>) listTask);
+        Thread schedulerThread = new Thread(scheduler);
+        schedulerThread.start();
         checkOldTask();
     }
     //получение длины листа
