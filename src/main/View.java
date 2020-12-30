@@ -106,7 +106,7 @@ public class View {
         System.out.println("Введите дату (dd.MM.yyyy HH:mm)");
         Scanner on = new Scanner(System.in);
         String date = on.nextLine();
-        if (controller.checkDate(date) == false){
+        if (!controller.checkDate(date)){
             return;
         }
         System.out.println("Введите тип задачи");
@@ -127,7 +127,7 @@ public class View {
         System.out.println("Введите дату (dd.MM.yyyy)");
         Scanner in = new Scanner(System.in);
         String date = in.nextLine();
-        if (controller.checkDate(date) == false)
+        if (!controller.checkDate(date))//добавить сообщение об ошибке
             return;
         System.out.println("Введите тип задачи");
         String type = in.nextLine();

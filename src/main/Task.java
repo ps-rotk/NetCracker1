@@ -7,7 +7,7 @@ import java.util.Calendar;
 
 public class Task implements Comparable<Task>, Serializable {
     private Integer id;
-    private String date;
+    private String date; //переделать в Date
     private String type;
     private String text;
 

@@ -8,7 +8,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class DBLayout {
-
+//сохранять при выходе
+    //передалть в map
     private List<Task> listTask;
 ///////////
     //Заполнение конструктора
@@ -19,7 +20,7 @@ public class DBLayout {
             if (checkExist.length() == 0){
                 System.out.println("Файл пуст");
                 return new LinkedList<Task>();
-            }else {
+            }else{
                 ObjectInputStream in = new ObjectInputStream(new FileInputStream("Tasks.dat"));
                 return DBLayout.deserializeListTask(in);
             }

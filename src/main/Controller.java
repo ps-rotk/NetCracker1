@@ -8,8 +8,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class Controller {
-    private List<Task> listTask;
-    private DBLayout layout;
+    private List<Task> listTask;//убрать лист с контроллера
+    private final DBLayout layout;
     //метод, который обновляет лист тасков в контроллере
     private void updateListTask(){
         listTask = layout.getAllTasks();
@@ -24,7 +24,7 @@ public class Controller {
         else {
             System.out.println("Проверка задач...\n");
             for (Task t : listTask) {
-                if (true != t.compareString(dateFormat.format(date))) {
+                if (!t.compareString(dateFormat.format(date))) { //убрать удаление, ставить обозначение, что задача выполнена
                     System.out.printf("Задача удалена (время исполнения прошло)\t");
                     System.out.println(t.toString());
                     deletedList.add(t);
@@ -52,7 +52,7 @@ public class Controller {
     public void addTask(Task t) throws IOException {
         DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm");
         Date date = new Date();
-        if (true == t.compareString(dateFormat.format(date))){
+        if (t.compareString(dateFormat.format(date))){
             layout.addTask(t);
             updateListTask();
         } else {
@@ -65,7 +65,7 @@ public class Controller {
     }
     //изменить таск
     public void updateTask(Task newT) throws IOException {
-        if (checkDate(newT.getDate()) == true) {
+        if (checkDate(newT.getDate())) {
             layout.updateTask(newT);
             updateListTask();
         }
@@ -92,7 +92,7 @@ public class Controller {
             return false;
         }
         Task newT = new Task(0, date1, null, null);
-        if (true == newT.compareString(dateFormat.format(date))){
+        if (newT.compareString(dateFormat.format(date))){
             return true;
         } else {
             System.out.println("Ошибка. Неправильная дата.");
@@ -108,16 +108,12 @@ public class Controller {
                 flag = true;
             }
         }
-        if (flag == false){
+        if (!flag){
             System.out.println("Невозможно удалить задачу: такого id не существует");
         } else {
             layout.deleteTask(id);
             updateListTask();
         }
-    }
-    //получить таск по индексу
-    public Task getTaskByIndex(int a){
-        return listTask.get(a);
     }
     //получить таск по условию (по датам)
     public LinkedList<Task> getTaskByQuery(String date){
@@ -129,7 +125,7 @@ public class Controller {
                 flag = true;
             }
         }
-        if (flag == false){
+        if (!flag){
            // System.out.println("Невозможно получить список задач на заданную дату: такой даты нет в списке");
             return null;
         } else {
@@ -147,7 +143,7 @@ public class Controller {
                 flag = true;
             }
         }
-        if (flag == false){
+        if (!flag){
             //System.out.println("Невозможно получить список задач по типу и дате: таких задач в списке нет");
             return null;
         } else {
@@ -179,11 +175,12 @@ public class Controller {
             return out;
         }
     }
-   public Integer setNewId(){
+
+   public Integer setNewId(){//генерировать в базе
        Random rand = new Random();
        return rand.nextInt(9999 - 1000) + 1000;
    }
-   public Task getTaskById(Integer id){
+   public Task getTaskById(Integer id){//перенести в базу
        Integer[] allId = layout.getAllId();
        boolean flag = false;
        for (int i = 0; i < listTask.size(); i++){
@@ -191,7 +188,7 @@ public class Controller {
                flag = true;
            }
        }
-       if (flag == false){
+       if (!flag){
            System.out.println("Не удалось обновить задачу. Такого id не существует");
            return null;
        }
