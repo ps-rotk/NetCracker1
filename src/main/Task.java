@@ -3,22 +3,23 @@ package main;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
-public class Task implements Comparable<Task>, Serializable {
+public class Task implements Serializable {
     private Integer id;
-    private String date; //переделать в Date
+    private LocalDateTime date; //TODO: переделать в Date; ready; update to Calendar; ... ; update to LocalDate
     private String type;
     private String text;
 
     public Task(){
         id = 0;
-        date = "24.12.2020 14:55";
+        date = LocalDateTime.now();
         type = "o";
         text = "oo";
     }
 
-    public Task(Integer id, String date, String type, String text){
+    public Task(Integer id, LocalDateTime date, String type, String text){
         this.id = id;
         this.date = date;
         this.type = type;
@@ -33,11 +34,11 @@ public class Task implements Comparable<Task>, Serializable {
         this.id = id;
     }
 
-    public String getDate() {
+    public LocalDateTime getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(LocalDateTime date) {
         this.date = date;
     }
 
@@ -58,7 +59,7 @@ public class Task implements Comparable<Task>, Serializable {
     }
 
 
-    @Override
+   /* @Override
     public int compareTo(Task o) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm");
         Calendar calendar = Calendar.getInstance();
@@ -93,8 +94,11 @@ public class Task implements Comparable<Task>, Serializable {
         if (calendar.compareTo(calendar1) > 0)
             return true;
         else return false;
-    }
+    }*/
     public String toString(){
-        return "ID: " + id + "\t" + "Дата: " + date + "\t" + "Тип: " + type + "\t" + "Текст: " + text;
+        return "ID: " + id + "\t" +
+                "Дата: " + date.getDayOfMonth() + "."+ date.getMonthValue() + "."+ date.getYear() + " " + date.getHour() + ":" + date.getMinute()+ "\t" +
+                "Тип: " + type + "\t" +
+                "Текст: " + text;
     }
 }

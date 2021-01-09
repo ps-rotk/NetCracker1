@@ -5,73 +5,75 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class Controller {
-    private List<Task> listTask;//убрать лист с контроллера
-    private final DBLayout layout;
+    private Map<Integer, Task> mapTask;
+    private DBLayout layout;
+    private Scheduler scheduler;
+
     //метод, который обновляет лист тасков в контроллере
-    private void updateListTask(){
-        listTask = layout.getAllTasks();
+    private void updateListTask() {
+        mapTask = layout.getAllTasks();
     }
+
     //проверяет при открытии программы наличие старых тасков
-    private void checkOldTask() throws IOException {
-        DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm");
-        Date date = new Date();
-        LinkedList<Task> deletedList = new LinkedList<>();
-        if (listTask.size() == 0)
-            return;
+    public Map<Integer, Task> checkOldTask() throws IOException {
+        LocalDateTime date = LocalDateTime.now();
+        Map<Integer, Task> deletedList = new HashMap<Integer, Task>();
+        if (mapTask.size() == 0)
+            return null;
         else {
             System.out.println("Проверка задач...\n");
-            for (Task t : listTask) {
-                if (!t.compareString(dateFormat.format(date))) { //убрать удаление, ставить обозначение, что задача выполнена
-                    System.out.printf("Задача удалена (время исполнения прошло)\t");
+            for (Map.Entry<Integer, Task> integerTaskEntry : mapTask.entrySet()) {
+                Task t = integerTaskEntry.getValue();
+                if (t.getDate().isBefore(date)) {
+                    System.out.print("Время исполнения следуюших задач прошло: \n");
                     System.out.println(t.toString());
-                    deletedList.add(t);
+                    deletedList.put(t.getId(), t);
                 }
             }
-            for (Task t : deletedList) {
-                deleteTask(t.getId());
-            }
-            System.out.println("Проверка задач завершена!\n");
         }
-
+        return deletedList;
     }
+
     //конструктор
     public Controller() throws IOException, ClassNotFoundException {
         layout = new DBLayout();
-        listTask = layout.getAllTasks();
-        Scheduler scheduler = new Scheduler((LinkedList<Task>) listTask);
+        mapTask = layout.getAllTasks();
+        scheduler = new Scheduler(mapTask);
         Thread schedulerThread = new Thread(scheduler);
         schedulerThread.start();
-        checkOldTask();
     }
+
     //получение длины листа
-    public int getLength(){ return listTask.size();}
+    public int getLength() {
+        return mapTask.size();
+    }
+
     //добавление таска
     public void addTask(Task t) throws IOException {
-        DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm");
-        Date date = new Date();
-        if (t.compareString(dateFormat.format(date))){
-            layout.addTask(t);
-            updateListTask();
-        } else {
-            System.out.println("Не удалось добавить задачу. Неправильная дата.");
-        }
+        layout.addTask(t);
+        updateListTask();
     }
+
     //получение всех тасков
-    public LinkedList<Task> getAllTasks(){
-        return (LinkedList<Task>) listTask;
+    public Map<Integer, Task> getAllTasks() {
+        return mapTask;
     }
+
     //изменить таск
     public void updateTask(Task newT) throws IOException {
-        if (checkDate(newT.getDate())) {
+        if (newT.getDate().isAfter(LocalDateTime.now())) {
             layout.updateTask(newT);
             updateListTask();
         }
     }
+
     //проверка даты
-    public boolean checkDate(String date1){
+   /* public boolean checkDate(String date1){
         DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm");
         Date date = new Date();
         int dd;int MM;int yyyy;int HH;int mm;
@@ -92,49 +94,57 @@ public class Controller {
             return false;
         }
         Task newT = new Task(0, date1, null, null);
-        if (newT.compareString(dateFormat.format(date))){
+        if (true == newT.compareString(dateFormat.format(date))){
             return true;
         } else {
             System.out.println("Ошибка. Неправильная дата.");
             return false;
         }
-    }
+    }*/
     //удалить таск
-    public void deleteTask(Integer id) throws IOException {
+    public void deleteTaskById(Integer id) throws IOException {
         Integer[] allId = layout.getAllId();
         boolean flag = false;
-        for (Integer i: allId){
-            if (i.equals(id)){
+        for (Integer i : allId) {
+            if (i.equals(id)) {
                 flag = true;
             }
         }
-        if (!flag){
+        if (!flag) {
             System.out.println("Невозможно удалить задачу: такого id не существует");
         } else {
             layout.deleteTask(id);
             updateListTask();
         }
     }
-    //получить таск по условию (по датам)
-    public LinkedList<Task> getTaskByQuery(String date){
-        String[] allDates = layout.getAllDate();
+
+    //получить таск по id
+    public Task getTaskByID(int a) {
+        return mapTask.get(a);
+    }
+
+    //получить мапу таск по условию (по датам)
+    public Map<Integer, Task> getTaskByDate(LocalDate date) {
+       /* Date[] allDates = layout.getAllDate();
         boolean flag = false;
 
-        for (String i: allDates){
+        for (Date i: allDates){
             if (i.equals(date)){
                 flag = true;
             }
         }
-        if (!flag){
+        if (flag == false){
            // System.out.println("Невозможно получить список задач на заданную дату: такой даты нет в списке");
             return null;
         } else {
             return layout.getTaskByQuery(date);
-        }
+        }*/
+        return layout.getTaskByDate(date);
     }
+
     //получить таск по условию (по строке и по типу)
-    public LinkedList<Task> getTaskByQuery(String date, String type){
-        String check = date + type;
+    public Map<Integer, Task> getTaskByQuery(LocalDate date, String type) {
+        /*String check = date + type;
         String[] allDatesType = layout.getAllDateType();
         boolean flag = false;
 
@@ -143,55 +153,70 @@ public class Controller {
                 flag = true;
             }
         }
-        if (!flag){
+        if (flag == false){
             //System.out.println("Невозможно получить список задач по типу и дате: таких задач в списке нет");
             return null;
         } else {
             return layout.getTaskByQuery(date, type);
-        }
+        }*/
+        return layout.getTaskByDateAndType(date, type);
+
     }
+
     //получить стринг всех задач
-   public String getStringListTasks() {
-       String out = "Cписок задач: \n";
-       if (listTask.size() == 0) {
-           return out = "Cписок задач пуст";
-       } else {
-
-           for (Task t : listTask) {
-               out += t.toString() + "\n";
-           }
-           return out;
-       }
-   }
-    //получить стринг переданного листа
-    public String getStringListTasks(LinkedList<Task> listTask) {
-        String out = "Cписок задач: \n";
-        if (listTask == null) {
+    public String getStringListTasks() {
+        String out;
+        if (mapTask.size() == 0) {
             return out = "Cписок задач пуст";
-        } else {
-            for (Task t : listTask) {
-                out += t.toString() + "\n";
-            }
-            return out;
         }
+        out = "Cписок задач: \n";
+
+        for (Map.Entry<Integer, Task> integerTaskEntry : mapTask.entrySet()) {
+            Task t = integerTaskEntry.getValue();
+            out += t.toString() + "\n";
+        }
+        return out;
     }
 
-   public Integer setNewId(){//генерировать в базе
-       Random rand = new Random();
-       return rand.nextInt(9999 - 1000) + 1000;
-   }
-   public Task getTaskById(Integer id){//перенести в базу
-       Integer[] allId = layout.getAllId();
-       boolean flag = false;
-       for (int i = 0; i < listTask.size(); i++){
-           if (id.equals(allId[i])){
-               flag = true;
-           }
-       }
-       if (!flag){
-           System.out.println("Не удалось обновить задачу. Такого id не существует");
-           return null;
-       }
-       return layout.getTaskById(id);
-   }
+    //получить стринг переданного листа
+    public String getStringListTasks(Map<Integer, Task> mapTask) {
+        String out;
+        if (mapTask == null) {
+            return out = "По данным критериям ничего не найдено";
+        }
+        out = "Cписок задач: \n";
+
+        for (Map.Entry<Integer, Task> integerTaskEntry : mapTask.entrySet()) {
+            Task t = integerTaskEntry.getValue();
+            out += t.toString() + "\n";
+        }
+        return out;
+    }
+
+    public Integer setNewId() {
+        /*return mapTask.size() + 1; /*/
+        Random rand = new Random();
+        return rand.nextInt(9999 - 1000) + 1000;
+    }
+
+    public Task getTaskById(Integer id) {
+        // Integer[] allId = layout.getAllId();
+        boolean flag = false;
+        for (Map.Entry<Integer, Task> integerTaskEntry : mapTask.entrySet()) {
+            Task t = integerTaskEntry.getValue();
+            if (id.equals(t.getId())) {
+                flag = true;
+                break;
+            }
+        }
+        if (!flag) {
+            System.out.println("Не удалось обновить задачу. Такого id не существует");
+            return null;
+        }
+        return layout.getTaskById(id);
+    }
+
+    public void exit() {
+        scheduler.setStop(true);
+    }
 }
