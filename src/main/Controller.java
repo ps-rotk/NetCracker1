@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 public class Controller {
-    private Map<Integer, Task> mapTask;
+    private Map<Integer, Task> mapTask;//TODO: Убрать
     private DBLayout layout;
     private Scheduler scheduler;
 
@@ -212,7 +212,7 @@ public class Controller {
         if (!flag) {
             System.out.println("Не удалось обновить задачу. Такого id не существует");
             return null;
-        }
+        }//TODO: убрать лишнее и все коменты
         return layout.getTaskById(id);
     }
 

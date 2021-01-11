@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 public class Task implements Serializable {
     private Integer id;
-    private LocalDateTime date; //TODO: переделать в Date; ready; update to Calendar; ... ; update to LocalDate
+    private LocalDateTime date;
     private String type;
     private String text;
 

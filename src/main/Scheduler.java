@@ -28,7 +28,6 @@ public class Scheduler implements Runnable {
     @Override
     public void run() {
         while (!stop) {
-            LocalDateTime date = LocalDateTime.now();
             while (!map.isEmpty()) {
 
                 /*for (Map.Entry<Integer, Task> integerTaskEntry : map.entrySet()) {
@@ -43,12 +42,12 @@ public class Scheduler implements Runnable {
                             (value.getDate().getHour() == l.getHour()) &&
                             (value.getDate().getMinute() == l.getMinute())) {
                         System.out.println("Задача наступила: " + value.toString());
-                        iterator.remove();
+                        iterator.remove();//TODO: помечать выполнение, а не удалять, новое поле для задачи
                     } else break;
                 }
             }
             try {
-                sleep(300);
+                sleep(300);//TODO: спать до ближайшей задачи
             } catch (InterruptedException e) {
                 e.printStackTrace();
                 break;

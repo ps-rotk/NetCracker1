@@ -11,9 +11,7 @@ import java.time.LocalTime;
 import java.time.chrono.ChronoLocalDateTime;
 import java.util.*;
 
-public class DBLayout implements Serializable {
-    //TODO: сохранять при выходе
-    //TODO: передалть в map; ready
+public class DBLayout implements Serializable {//TODO: возвращает лист и дальше работаем с листом
     private Map<Integer, Task> mapTask;
 
     ///////////
@@ -199,7 +197,7 @@ public class DBLayout implements Serializable {
         return allDatesType;
     }
 
-    public Task getTaskById(Integer id) {
+    public Task getTaskById(Integer id) { //TODO: спользовать
         for (Map.Entry<Integer, Task> integerTaskEntry : mapTask.entrySet()) {
             Task value = integerTaskEntry.getValue();
             if (id.equals(value.getId()))

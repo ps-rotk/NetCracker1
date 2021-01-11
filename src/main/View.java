@@ -110,7 +110,7 @@ public class View {
         String type = in.nextLine();
         System.out.println("Введите заметку");
         String text = in.nextLine();
-        Integer id = controller.setNewId();
+        Integer id = controller.setNewId();//TODO: создать интерфейс IdGenerated, убрать из контроллера: 1) генерация на основании последовательности, 2) генерирует исходя из даты 3) дефолт
         Task newTask = new Task(id, date, type, text);
         controller.addTask(newTask);
     }
