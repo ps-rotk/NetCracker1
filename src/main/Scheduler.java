@@ -24,10 +24,6 @@ public class Scheduler /*implements Runnable*/ extends Thread {
         this.stop = stop;
     }
 
-   /* public void setList(Controller controller) {
-        this.controller = controller;
-        sortList();
-    }*/
 
     private void sortList() {
         Collections.sort(controller.getListTasks(), new Comparator<Task>() {
