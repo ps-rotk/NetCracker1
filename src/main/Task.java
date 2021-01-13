@@ -1,9 +1,6 @@
 package main;
 
 import java.io.Serializable;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class Task implements Serializable {
@@ -11,12 +8,15 @@ public class Task implements Serializable {
     private LocalDateTime date;
     private String type;
     private String text;
+    private Boolean performed;
+
 
     public Task(){
         id = 0;
         date = LocalDateTime.now();
         type = "o";
         text = "oo";
+        performed = false;
     }
 
     public Task(Integer id, LocalDateTime date, String type, String text){
@@ -24,6 +24,7 @@ public class Task implements Serializable {
         this.date = date;
         this.type = type;
         this.text = text;
+        performed = false;
     }
 
     public Integer getId() {
@@ -58,6 +59,24 @@ public class Task implements Serializable {
         this.text = text;
     }
 
+    public Boolean getPerformed() {
+        return performed;
+    }
+
+    public void setPerformed(Boolean performed) {
+        this.performed = performed;
+    }
+
+    public String toString(){
+        String s;
+        if (performed){s = "Выполнена";}
+        else s ="Не выполнена";
+        return "ID: " + id + "\t\t\t" +
+                "Дата: " + date.getDayOfMonth() + "."+ date.getMonthValue() + "."+ date.getYear() + " " + date.getHour() + ":" + date.getMinute()+ "\t\t\t" +
+                "Тип: " + type + "\t\t\t" +
+                "Текст: " + text + "\t\t\t" +
+                "Статус: " + s;
+    }
 
    /* @Override
     public int compareTo(Task o) {
@@ -95,10 +114,5 @@ public class Task implements Serializable {
             return true;
         else return false;
     }*/
-    public String toString(){
-        return "ID: " + id + "\t" +
-                "Дата: " + date.getDayOfMonth() + "."+ date.getMonthValue() + "."+ date.getYear() + " " + date.getHour() + ":" + date.getMinute()+ "\t" +
-                "Тип: " + type + "\t" +
-                "Текст: " + text;
-    }
+
 }

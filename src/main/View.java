@@ -2,8 +2,6 @@ package main;
 
 
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -25,28 +23,12 @@ public class View {
         System.out.println("4) Найти задачи по дате");
         System.out.println("5) Найти задачи по дате и типу");
         System.out.println("6) Удалить задачу");
-        System.out.println("7) Выход");
+        System.out.println("7) Удалить выполненые задачи");
+        System.out.println("8) Выход");
     }
 
     public void start() throws IOException {
-        Map<Integer, Task> deleteMap = controller.checkOldTask();
-        if (deleteMap != null && deleteMap.size() != 0) {
-            System.out.println("Желаете удалить из списка задачи с прошедшим временем выполнения? Y для удаления:");
-            Scanner dl = new Scanner(System.in);
-            String del = dl.nextLine();
-            if (del.equals("Y")) {
-                System.out.println("Вы выбрали удаление прошедших задач. \nУдаляю...");
-                for (Map.Entry<Integer, Task> integerTaskEntry : deleteMap.entrySet()) {
-                    Task t = integerTaskEntry.getValue();
-                    controller.deleteTaskById(t.getId());
-                    System.out.println("Удаление Выполнено успешно");
-                }
-            } else {
-                System.out.println("Вы выбрали не удалять");
-            }
-        }
-        else { System.out.println("Устареших задач не обнаружено");}
-
+        deleteAllOldTask();
         Scanner in = new Scanner(System.in);
         boolean stop = false;
         int number;
@@ -76,6 +58,9 @@ public class View {
                         deleteTaskById();
                         break;
                     case 7:
+                        deleteAllOldTask();
+                        break;
+                    case 8:
                         stop = true;
                         controller.exit();
                         break;
@@ -93,8 +78,21 @@ public class View {
 
     //1
     public void printListTask() {
-        System.out.println(controller.getStringListTasks());
-        System.out.println();
+        ArrayList<Task> listTask = controller.getListTasks();
+        Collections.sort(listTask, new Comparator<Task>() {
+            @Override
+            public int compare(Task o1, Task o2) {
+                return o1.getDate().compareTo(o2.getDate());
+            }
+        });
+        if (listTask.size() != 0) {
+            System.out.println("Список задач");
+            for (Task t : listTask) {
+                System.out.println(t.toString());
+            }
+        } else {
+            System.out.println("Список задач пуст");
+        }
     }
 
     //2
@@ -110,7 +108,7 @@ public class View {
         String type = in.nextLine();
         System.out.println("Введите заметку");
         String text = in.nextLine();
-        Integer id = controller.setNewId();//TODO: создать интерфейс IdGenerated, убрать из контроллера: 1) генерация на основании последовательности, 2) генерирует исходя из даты 3) дефолт
+        Integer id = controller.setNewId();
         Task newTask = new Task(id, date, type, text);
         controller.addTask(newTask);
     }
@@ -122,8 +120,10 @@ public class View {
         Scanner in = new Scanner(System.in);
         Integer id = in.nextInt();
         Task temp = controller.getTaskById(id);
-        if (temp == null)
+        if (temp == null) {
+            System.out.println("Введенный id не найден");
             return;
+        }
         LocalDate localDate = checkDate();
         LocalTime localTime = checkTime();
         if (localDate == null || localTime == null) {
@@ -145,8 +145,13 @@ public class View {
             return;
         }
         LocalDate date = LocalDate.of(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth());
-        System.out.println(controller.getStringListTasks(controller.getTaskByDate(date)));
-
+        ArrayList<Task> listTask = controller.getTaskByDate(date);
+        if (listTask.size() != 0) {
+            System.out.println("Cписок задач: ");
+            for (Task task : listTask) {
+                System.out.println(task.toString());
+            }
+        } else System.out.println("По данным критериям ничего не найдено");
     }
 
     //5
@@ -159,10 +164,13 @@ public class View {
         System.out.println("Введите тип задачи");
         Scanner in = new Scanner(System.in);
         String type = in.nextLine();
-        System.out.println(controller.getStringListTasks(controller.getTaskByQuery(date, type)));
-        System.out.println();
-
-
+        ArrayList<Task> listTask = controller.getTaskByQuery(date, type);
+        if (listTask.size() != 0) {
+            System.out.println("Cписок задач: ");
+            for (Task task : listTask) {
+                System.out.println(task.toString());
+            }
+        } else System.out.println("По данным критериям ничего не найдено");
     }
 
     //6
@@ -171,8 +179,41 @@ public class View {
         System.out.println("Введите id задачи, которую хотите удалить");
         Scanner in = new Scanner(System.in);
         Integer id = in.nextInt();
-        controller.deleteTaskById(id);
-        System.out.println("Задача удалена");
+        if (controller.deleteTaskById(id)) {
+            System.out.println("Задача удалена");
+        } else System.out.println("Задача не удалена. Введенный id не найден");
+    }
+
+    //7
+    public void deleteAllOldTask() throws IOException {
+        System.out.println("Проверка задач...\n");
+        ArrayList<Task> deleteList = controller.checkOldTask();
+        if (deleteList != null && deleteList.size() != 0) {
+            Collections.sort(deleteList, new Comparator<Task>() {
+                @Override
+                public int compare(Task o1, Task o2) {
+                    return o1.getDate().compareTo(o2.getDate());
+                }
+            });
+            System.out.println("Следующие задачи устарели или были выполнены:");
+            for (Task t : deleteList) {
+                System.out.println(t.toString());
+            }
+            System.out.println("Желаете удалить из списка эти задачи? Y для удаления:");
+            Scanner dl = new Scanner(System.in);
+            String del = dl.nextLine();
+            if (del.equals("Y")) {
+                System.out.println("Вы выбрали удаление задач. \nУдаляю...");
+                for (Task t : deleteList) {
+                    controller.deleteTaskById(t.getId());
+                    System.out.println("Удаление выполнено успешно");
+                }
+            } else {
+                System.out.println("Вы выбрали не удалять");
+            }
+        } else {
+            System.out.println("Устареших задач не обнаружено");
+        }
     }
 
     private LocalDate checkDate() {

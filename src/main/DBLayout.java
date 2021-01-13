@@ -1,17 +1,13 @@
 package main;
 
 import java.io.*;
-import java.lang.reflect.Array;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.chrono.ChronoLocalDateTime;
+
 import java.util.*;
 
-public class DBLayout implements Serializable {//TODO: возвращает лист и дальше работаем с листом
+public class DBLayout implements Serializable {
     private Map<Integer, Task> mapTask;
 
     ///////////
@@ -84,79 +80,75 @@ public class DBLayout implements Serializable {//TODO: возвращает ли
     }
 
     //передача всех задач в контроллер
-    public Map<Integer, Task> getAllTasks() {
-        return mapTask;
+    public ArrayList<Task> getAllTasks() {
+        ArrayList<Task> list = new ArrayList<Task>(mapTask.values());
+        Collections.sort(list, new Comparator<Task>() {
+            @Override
+            public int compare(Task o1, Task o2) {
+                return o1.getDate().compareTo(o2.getDate());
+            }
+        });
+        return list;
     }
 
-    //добавление задачи в список
+    //добавление задачи в мапу
     public void addTask(Task task) throws IOException {
         mapTask.put(task.getId(), task);
-        // sortList();
         saveListTask();
     }
 
     //удаление задачи
-    public void deleteTask(Integer id) throws IOException {
-        /*Iterator<Task> i = mapTask.iterator();
-        Task temp;
-        while (i.hasNext()){
-            temp = i.next();
-            if (temp.getId().equals(id)){
-                i.remove();
+    public boolean deleteTask(Integer id) throws IOException {
+        Integer[] allId = getAllId();
+        boolean flag = false;
+        for (Integer i : allId) {
+            if (i.equals(id)) {
+                flag = true;
             }
-        }*/
-        mapTask.remove(id);
-        saveListTask();
-    }
-
-    //получить размер мапы
-    public int getLength() {
-        return mapTask.size();
+        }
+        if (!flag) {
+            return false;
+        } else {
+            mapTask.remove(id);
+            saveListTask();
+            return true;
+        }
     }
 
     //обновить таск
     public void updateTask(Task newT) throws IOException {
-        /*for (Task i: listTask){
-            if (i.getId().equals(newT.getId())){
-                i.setDate(newT.getDate());
-                i.setText(newT.getText());
-                i.setType(newT.getType());
-            }
-        }
-        sortList();
-        */
         mapTask.replace(newT.getId(), newT);
         saveListTask();
     }
 
     //получить мапу задач по определённой дате
-    public Map<Integer, Task> getTaskByDate(LocalDate date) {
-        Map<Integer, Task> newTasks = new HashMap<Integer, Task>();
+    public ArrayList<Task> getTaskByDate(LocalDate date) {
+        ArrayList<Task> newTasks = new ArrayList<Task>();
         for (Map.Entry<Integer, Task> integerTaskEntry : mapTask.entrySet()) {
             Task value = integerTaskEntry.getValue();
-            if (value.getDate().isAfter(LocalDateTime.of(date, LocalTime.of(0,0)))
-                    && value.getDate().isBefore(LocalDateTime.of(date.plusDays(1), LocalTime.of(0,0)))) {
-                newTasks.put(value.getId(), value);
+            if (value.getDate().isAfter(LocalDateTime.of(date, LocalTime.of(0, 0)))
+                    && value.getDate().isBefore(LocalDateTime.of(date.plusDays(1), LocalTime.of(0, 0)))) {
+                newTasks.add(value);
             }
         }
-        if (newTasks.isEmpty()) {
+        if (newTasks.size() == 0) {
             return null;
         }
         return newTasks;
     }
 
     //получить список задач по дате и типу
-    public Map<Integer, Task> getTaskByDateAndType(LocalDate date, String type) {
-        Map<Integer, Task> newTasks = new HashMap<Integer, Task>();
+    public ArrayList<Task> getTaskByDateAndType(LocalDate date, String type) {
+        ArrayList<Task> newTasks = new ArrayList<Task>();
         for (Map.Entry<Integer, Task> integerTaskEntry : mapTask.entrySet()) {
             Task value = integerTaskEntry.getValue();
-           if (value.getDate().isAfter(LocalDateTime.of(date, LocalTime.of(0,0)))
-                   && value.getDate().isBefore(LocalDateTime.of(date.plusDays(1), LocalTime.of(0,0)))
-                   && value.getType().equals(type)) {
-                newTasks.put(value.getId(), value);
+            if (value.getDate().isAfter(LocalDateTime.of(date, LocalTime.of(0, 0)))
+                    && value.getDate().isBefore(LocalDateTime.of(date.plusDays(1), LocalTime.of(0, 0)))
+                    && value.getType().equals(type)) {
+                newTasks.add(value);
             }
         }
-        if (newTasks.isEmpty()) {
+        if (newTasks.size() == 0) {
             return null;
         }
         return newTasks;
@@ -174,36 +166,17 @@ public class DBLayout implements Serializable {//TODO: возвращает ли
         return allId;
     }
 
-    //возвращает массив дат для проверки в контроллере
-    public LocalDateTime[] getAllDate() {
-        LocalDateTime[] allDates = new LocalDateTime[mapTask.size()];
-        int i = 0;
-        for (Map.Entry<Integer, Task> integerTaskEntry : mapTask.entrySet()) {
-            Task value = integerTaskEntry.getValue();
-            allDates[i] = value.getDate();
-            i++;
-        }
-        return allDates;
-    }
-
-    //вернуть конкантенацию строк даты и типа для проверки в контроллере
-    public String[] getAllDateType() {
-        String[] allDatesType = new String[mapTask.size()];
-        int i = 0;
-        for (Map.Entry<Integer, Task> integerTaskEntry : mapTask.entrySet()) {
-            Task value = integerTaskEntry.getValue();
-            allDatesType[i] = value.getDate() + "    " + value.getType();
-        }
-        return allDatesType;
-    }
-
-    public Task getTaskById(Integer id) { //TODO: спользовать
+    public Task getTaskById(Integer id) {
         for (Map.Entry<Integer, Task> integerTaskEntry : mapTask.entrySet()) {
             Task value = integerTaskEntry.getValue();
             if (id.equals(value.getId()))
                 return value;
         }
         return null;
+    }
+
+    public void setPerformed(int id, boolean check){
+        getTaskById(id).setPerformed(check);
     }
 
 }
