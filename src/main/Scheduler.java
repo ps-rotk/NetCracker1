@@ -16,7 +16,6 @@ public class Scheduler /*implements Runnable*/ extends Thread {
 
     public Scheduler(Controller controller) {
         this.controller = controller;
-        sortList();
         stop = false;
     }
 
@@ -25,14 +24,6 @@ public class Scheduler /*implements Runnable*/ extends Thread {
     }
 
 
-    private void sortList() {
-        Collections.sort(controller.getListTasks(), new Comparator<Task>() {
-            @Override
-            public int compare(Task o1, Task o2) {
-                return o1.getDate().compareTo(o2.getDate());
-            }
-        });
-    }
 
     @Override
     public void run() {

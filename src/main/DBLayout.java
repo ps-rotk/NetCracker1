@@ -29,28 +29,6 @@ public class DBLayout implements Serializable {
             return new HashMap<Integer, Task>();
         }
     }
-    //сортировка листа по дате
-    /*private void sortMap(){ // смысл сортировать...
-        mapTask.(new Comparator<Task>() {
-            @Override
-            public int compare(Task o1, Task o2) {
-                SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm");
-                Calendar calendar = Calendar.getInstance();
-                try {
-                    calendar.setTime(dateFormat.parse(o1.getDate()));
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-                Calendar calendar1 = Calendar.getInstance();
-                try {
-                    calendar1.setTime(dateFormat.parse(o2.getDate()));
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-                return calendar.compareTo(calendar1);
-            }
-        });
-    }*/
 
     //сериализация
     private static void serializeListTask(Map<Integer, Task> mapTask, OutputStream out) throws IOException {
@@ -98,26 +76,14 @@ public class DBLayout implements Serializable {
     }
 
     //удаление задачи
-    public boolean deleteTask(Integer id) throws IOException {
-        Integer[] allId = getAllId();
-        boolean flag = false;
-        for (Integer i : allId) {
-            if (i.equals(id)) {
-                flag = true;
-            }
-        }
-        if (!flag) {
-            return false;
-        } else {
-            mapTask.remove(id);
-            saveListTask();
-            return true;
-        }
+    public void deleteTask(Integer id) throws IOException {
+        mapTask.remove(id);
+        saveListTask();
     }
 
     //обновить таск
     public void updateTask(Task newT) throws IOException {
-        mapTask.replace(newT.getId(), newT);
+        mapTask.put(newT.getId(), newT);
         saveListTask();
     }
 
@@ -167,15 +133,14 @@ public class DBLayout implements Serializable {
     }
 
     public Task getTaskById(Integer id) {
-        for (Map.Entry<Integer, Task> integerTaskEntry : mapTask.entrySet()) {
-            Task value = integerTaskEntry.getValue();
+        for (Task value: mapTask.values()) {
             if (id.equals(value.getId()))
                 return value;
         }
         return null;
     }
 
-    public void setPerformed(int id, boolean check){
+    public void setPerformed(int id, boolean check) {
         getTaskById(id).setPerformed(check);
     }
 

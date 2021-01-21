@@ -1,6 +1,8 @@
 package main;
 
 
+import IdGenerated.IdGeneratorFactory;
+
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -9,7 +11,7 @@ import java.util.*;
 public class Controller {
     private DBLayout layout;
     private Scheduler scheduler;
-   // private Thread schedulerThread;
+    private IdGeneratorFactory idGeneratorFactory;
 
     //проверяет при открытии программы наличие старых тасков
     public ArrayList<Task> checkOldTask() {
@@ -30,6 +32,7 @@ public class Controller {
     //конструктор
     public Controller() throws IOException, ClassNotFoundException {
         layout = new DBLayout();
+        idGeneratorFactory = new IdGeneratorFactory();
         scheduler = new Scheduler(this);
         scheduler.start();
     }
@@ -47,10 +50,9 @@ public class Controller {
     }
 
     //удалить таск
-    public boolean deleteTaskById(Integer id) throws IOException {
-        boolean t = layout.deleteTask(id);
+    public void deleteTaskById(Integer id) throws IOException {
+        layout.deleteTask(id);
         scheduler.interrupt();
-        return t;
     }
 
     //получить мапу таск по условию (по датам)
@@ -82,18 +84,6 @@ public class Controller {
     }
 
     public int setNewId() {
-        Random r = new Random();
-        int c = r.nextInt(3);
-        IdGenerated idGenerated = new IdGenerated();
-        if (c == 0) {
-            return idGenerated.getIdByDate();
-        }
-        if (c == 1) {
-            return idGenerated.getIdBySequence(layout.getAllTasks());
-        }
-        if (c == 2) {
-            return idGenerated.getRandomId();
-        }
-        return r.nextInt();
+        return idGeneratorFactory.createId(layout.getAllTasks());
     }
 }

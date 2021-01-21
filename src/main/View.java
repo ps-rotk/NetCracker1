@@ -179,9 +179,9 @@ public class View {
         System.out.println("Введите id задачи, которую хотите удалить");
         Scanner in = new Scanner(System.in);
         Integer id = in.nextInt();
-        if (controller.deleteTaskById(id)) {
-            System.out.println("Задача удалена");
-        } else System.out.println("Задача не удалена. Введенный id не найден");
+        controller.deleteTaskById(id);
+        System.out.println("Задача удалена");
+
     }
 
     //7
@@ -189,12 +189,6 @@ public class View {
         System.out.println("Проверка задач...\n");
         ArrayList<Task> deleteList = controller.checkOldTask();
         if (deleteList != null && deleteList.size() != 0) {
-            Collections.sort(deleteList, new Comparator<Task>() {
-                @Override
-                public int compare(Task o1, Task o2) {
-                    return o1.getDate().compareTo(o2.getDate());
-                }
-            });
             System.out.println("Следующие задачи устарели или были выполнены:");
             for (Task t : deleteList) {
                 System.out.println(t.toString());
@@ -206,8 +200,8 @@ public class View {
                 System.out.println("Вы выбрали удаление задач. \nУдаляю...");
                 for (Task t : deleteList) {
                     controller.deleteTaskById(t.getId());
-                    System.out.println("Удаление выполнено успешно");
                 }
+                System.out.println("Удаление устаревших задач выполнено успешно");
             } else {
                 System.out.println("Вы выбрали не удалять");
             }
