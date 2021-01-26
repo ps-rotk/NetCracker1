@@ -1,6 +1,9 @@
 package main;
 
 
+import main.Interface.IObservable;
+import main.Interface.IObserver;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -9,53 +12,62 @@ import java.util.*;
 
 import static java.lang.Thread.sleep;
 
-public class Scheduler /*implements Runnable*/ extends Thread {
-    // private ArrayList<Task> list;
+public class Scheduler extends Thread implements IObservable {
+    private ArrayList<Task> list;
+    private ArrayList<IObserver> observers;
     private boolean stop;
-    private Controller controller;
 
-    public Scheduler(Controller controller) {
-        this.controller = controller;
+    public Scheduler(ArrayList<Task> list) {
+        this.list = list;
         stop = false;
+        observers = new ArrayList<>();
     }
 
     public void setStop(boolean stop) {
         this.stop = stop;
     }
 
+    public void setList(ArrayList<Task> list) {
+        this.list = list;
+    }
 
+    @Override
+    public void addObserver(IObserver o) {
+        observers.add(o);
+    }
+
+    @Override
+    public void removeObserver(IObserver o) {
+        observers.remove(o);
+    }
+
+    @Override
+    public void notifyObservers(Task task) {
+        for (IObserver observer : observers)
+            observer.update(task);
+    }
 
     @Override
     public void run() {
         while (!stop) {
-            if (controller.getListTasks().size() != 0) {
-                LocalDateTime l = LocalDateTime.now();
-                for (Task value : controller.getListTasks()) {
-                    if (!value.getPerformed()) {
-                        if ((value.getDate().getYear() == l.getYear()) &&
-                                (value.getDate().getMonth() == l.getMonth()) &&
-                                (value.getDate().getDayOfMonth() == l.getDayOfMonth()) &&
-                                (value.getDate().getHour() == l.getHour()) &&
-                                (value.getDate().getMinute() == l.getMinute())) {
-                            System.out.println("Задача наступила: " + value.toString());
-                            controller.setPerformed(value.getId(), true);
-                        } else break;
-                    }
-                }
-                try {
-                    for (Task task : controller.getListTasks()) {
-                        if (!task.getPerformed() && task.getDate().isAfter(LocalDateTime.now())) {
-                            long time = ChronoUnit.MILLIS.between(LocalDateTime.now(), task.getDate());
-                           // System.out.println(time + "   "+ task.getDate());
+            if (list.size() != 0) {
+                for (Task task : list) {
+                    if (!task.getPerformed()) {
+                        long time = ChronoUnit.MILLIS.between(LocalDateTime.now(), task.getDate());
+                        try {
                             sleep(time);
+                            notifyObservers(task);
+                            System.out.println("Задача наступила: " + task.toString());
+
+                        } catch (InterruptedException e) {
                             break;
                         }
                     }
-                } catch (InterruptedException e) {
-                    continue;
                 }
-
             }
+
         }
     }
+
+
 }

@@ -2,21 +2,24 @@ package main;
 
 
 import IdGenerated.IdGeneratorFactory;
+import main.Interface.IObservable;
+import main.Interface.IObserver;
 
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
-public class Controller {
+public class Controller implements IObserver {
     private DBLayout layout;
     private Scheduler scheduler;
     private IdGeneratorFactory idGeneratorFactory;
+    IObservable flow;
 
     //проверяет при открытии программы наличие старых тасков
     public ArrayList<Task> checkOldTask() {
         ArrayList<Task> deletedList = new ArrayList<>();
-        if (layout.getAllTasks().size()== 0)
+        if (layout.getAllTasks().size() == 0)
             return null;
         else {
             for (Task t : layout.getAllTasks()) {
@@ -33,25 +36,35 @@ public class Controller {
     public Controller() throws IOException, ClassNotFoundException {
         layout = new DBLayout();
         idGeneratorFactory = new IdGeneratorFactory();
-        scheduler = new Scheduler(this);
+        scheduler = new Scheduler(getNotExecuted());
+        scheduler.addObserver(this);
         scheduler.start();
+
+    }
+
+    @Override
+    public void update(Task task) {
+        setPerformed(task.getId(), true);
     }
 
     //добавление таска
     public void addTask(Task t) throws IOException {
         layout.addTask(t);
+        scheduler.setList(getNotExecuted());
         scheduler.interrupt();
     }
 
     //изменить таск
     public void updateTask(Task newT) throws IOException {
         layout.updateTask(newT);
+        scheduler.setList(getNotExecuted());
         scheduler.interrupt();
     }
 
     //удалить таск
     public void deleteTaskById(Integer id) throws IOException {
         layout.deleteTask(id);
+        scheduler.setList(getNotExecuted());
         scheduler.interrupt();
     }
 
@@ -79,11 +92,23 @@ public class Controller {
         scheduler.setStop(true);
     }
 
-    public void setPerformed(int id, boolean check){
+    public void setPerformed(int id, boolean check) {
         layout.setPerformed(id, check);
     }
 
     public int setNewId() {
         return idGeneratorFactory.createId(layout.getAllTasks());
     }
+
+    private ArrayList<Task> getNotExecuted() {
+        ArrayList<Task> newArray = new ArrayList<>();
+        for (Task task : layout.getAllTasks()) {
+            if (!task.getPerformed() && task.getDate().isAfter(LocalDateTime.now())) {
+                newArray.add(task);
+            }
+        }
+        return newArray;
+    }
+
+
 }

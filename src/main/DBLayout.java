@@ -133,11 +133,7 @@ public class DBLayout implements Serializable {
     }
 
     public Task getTaskById(Integer id) {
-        for (Task value: mapTask.values()) {
-            if (id.equals(value.getId()))
-                return value;
-        }
-        return null;
+        return mapTask.get(id);
     }
 
     public void setPerformed(int id, boolean check) {
