@@ -29,6 +29,7 @@ public class Scheduler extends Thread implements IObservable {
 
     public void setList(ArrayList<Task> list) {
         this.list = list;
+        interruptThread();
     }
 
     @Override
@@ -45,6 +46,14 @@ public class Scheduler extends Thread implements IObservable {
     public void notifyObservers(Task task) {
         for (IObserver observer : observers)
             observer.update(task);
+    }
+
+    public void startThread(){
+        this.start();
+    }
+
+    public void interruptThread(){
+        this.interrupt();
     }
 
     @Override

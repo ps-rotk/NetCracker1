@@ -10,11 +10,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
-public class Controller implements IObserver {
+public class Controller {
     private DBLayout layout;
     private Scheduler scheduler;
     private IdGeneratorFactory idGeneratorFactory;
-    IObservable flow;
+    private Observer observer;
 
     //проверяет при открытии программы наличие старых тасков
     public ArrayList<Task> checkOldTask() {
@@ -37,35 +37,30 @@ public class Controller implements IObserver {
         layout = new DBLayout();
         idGeneratorFactory = new IdGeneratorFactory();
         scheduler = new Scheduler(getNotExecuted());
-        scheduler.addObserver(this);
-        scheduler.start();
-
+        scheduler.startThread();
+        observer = new Observer(this);
     }
 
-    @Override
-    public void update(Task task) {
-        setPerformed(task.getId(), true);
+    public Scheduler getScheduler(){
+        return scheduler;
     }
 
     //добавление таска
     public void addTask(Task t) throws IOException {
         layout.addTask(t);
         scheduler.setList(getNotExecuted());
-        scheduler.interrupt();
     }
 
     //изменить таск
     public void updateTask(Task newT) throws IOException {
         layout.updateTask(newT);
         scheduler.setList(getNotExecuted());
-        scheduler.interrupt();
     }
 
     //удалить таск
     public void deleteTaskById(Integer id) throws IOException {
         layout.deleteTask(id);
         scheduler.setList(getNotExecuted());
-        scheduler.interrupt();
     }
 
     //получить мапу таск по условию (по датам)
